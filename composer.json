@@ -1,0 +1,29 @@
+{
+    "name": "guide42/choclo",
+    "type": "library",
+    "description": "Configuration Framework",
+    "keywords": ["config", "configurator", "configuration", "framework"],
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Juan M Martínez",
+            "email": "choclo@jm.guide42.com",
+            "homepage": "http://jm.guide42.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "guide42/suda": "~0.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Guide42\\Choclo\\": "library/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Guide42\\ChocloTest\\": "tests/"
+        }
+    }
+}
