@@ -16,6 +16,9 @@
         "php": ">=5.3",
         "guide42/suda": "~0.6"
     },
+    "require-dev": {
+        "satooshi/php-coveralls": "@stable"
+    },
     "autoload": {
         "psr-4": {
             "Guide42\\Choclo\\": "library/"
