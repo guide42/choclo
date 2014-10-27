@@ -10,6 +10,11 @@ class ActionState
     private $queue = array(); // by phase
     private $order = PHP_INT_MAX;
 
+    public function reset() {
+        $this->queue = array();
+        $this->order = PHP_INT_MAX;
+    }
+
     public function push($phase, $key, callable $fn, $path, $priority=0) {
         if (array_key_exists($phase, $this->queue) === false) {
             $this->queue[$phase] = new \SplPriorityQueue;

@@ -17,6 +17,7 @@ interface ConfiguratorInterface
      *
      * @param array|string $key       Configuration path
      * @param callable     $configure Callable to configure the key
+     * @param integer      $phase     In which phase this should execute
      */
     function register($key, callable $configure, $phase=self::PHASE_DEFAULT);
 

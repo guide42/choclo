@@ -6,10 +6,17 @@ use Guide42\Suda\Registry;
 
 class Configurator implements ConfiguratorInterface
 {
+    public $path = '/';
+
     /**
      * @var \Guide42\Suda\RegistryInterface
      */
     private $registry;
+
+    /**
+     * @var Guide42\Choclo\ActionState
+     */
+    private $actions;
 
     public function __construct(Registry $registry=null) {
         if ($registry === null) {
@@ -17,6 +24,8 @@ class Configurator implements ConfiguratorInterface
         }
 
         $this->registry = $registry;
+        $this->actions = new ActionState();
+
         $this->rollback();
     }
 
@@ -25,14 +34,15 @@ class Configurator implements ConfiguratorInterface
     }
 
     public function register($key, callable $configure, $phase=self::PHASE_DEFAULT) {
-        // TODO
+        $this->actions->push($phase, $key, $configure, $path);
     }
 
     public function rollback() {
-        // TODO
+        $this->actions->reset();
     }
 
     public function commit() {
-        // TODO
+        $this->actions->exec();
+        $this->actions->reset();
     }
 }
