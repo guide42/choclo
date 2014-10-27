@@ -6,6 +6,13 @@ use Guide42\Choclo\ActionState;
 
 class ActionStateTest extends \PHPUnit_Framework_TestCase
 {
+    public function exec(ActionState $state)
+    {
+        foreach ($state->resolve() as $action) {
+            call_user_func($action[1]);
+        }
+    }
+
     public function testRegister()
     {
         $state = new ActionState();
@@ -18,8 +25,8 @@ class ActionStateTest extends \PHPUnit_Framework_TestCase
 
         $state = new ActionState();
         $state->push(0, 'set', function() use (&$exec) { $exec++; }, '/');
-        $state->exec();
 
+        $this->exec($state);
         $this->assertEquals(1, $exec);
     }
 
@@ -30,8 +37,8 @@ class ActionStateTest extends \PHPUnit_Framework_TestCase
         $state = new ActionState();
         $state->push(0, 'set', function() use (&$exec) { $exec++; }, '/1');
         $state->push(0, 'set', function() use (&$exec) { $exec++; }, '/');
-        $state->exec();
 
+        $this->exec($state);
         $this->assertEquals(1, $exec);
     }
 
@@ -43,7 +50,8 @@ class ActionStateTest extends \PHPUnit_Framework_TestCase
         $state = new ActionState();
         $state->push(0, 'set', function() {}, '/1');
         $state->push(0, 'set', function() {}, '/2');
-        $state->exec();
+
+        $this->exec($state);
     }
 
     /**
@@ -54,7 +62,8 @@ class ActionStateTest extends \PHPUnit_Framework_TestCase
         $state = new ActionState();
         $state->push(0, 'set', function() {}, '/');
         $state->push(0, 'set', function() {}, '/');
-        $state->exec();
+
+        $this->exec($state);
     }
 
     public function testExecuteByPhase()
@@ -64,8 +73,8 @@ class ActionStateTest extends \PHPUnit_Framework_TestCase
         $state = new ActionState();
         $state->push(0, 'set', function() use (&$exec) { $exec++; }, '/');
         $state->push(1, 'set', function() use (&$exec) { $exec++; }, '/');
-        $state->exec();
 
+        $this->exec($state);
         $this->assertEquals(2, $exec);
     }
 
@@ -76,8 +85,8 @@ class ActionStateTest extends \PHPUnit_Framework_TestCase
         $state = new ActionState();
         $state->push(0, null, function() use (&$exec) { $exec++; }, '/1');
         $state->push(0, null, function() use (&$exec) { $exec++; }, '/2');
-        $state->exec();
 
+        $this->exec($state);
         $this->assertEquals(2, $exec);
     }
 }

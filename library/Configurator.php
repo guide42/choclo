@@ -42,7 +42,19 @@ class Configurator implements ConfiguratorInterface
     }
 
     public function commit() {
-        $this->actions->exec();
-        $this->actions->reset();
+        foreach ($this->actions->resolve() as $action) {
+            list($key, $fn) = $action;
+
+            try {
+                call_user_func($fn);
+            } catch (\Exception $e) {
+                $msg = 'An error occurred during execution'
+                     . ' of a configuration action';
+
+                throw new ExecutionException($msg, null, $e, $key, $fn);
+            }
+        }
+
+        $this->rollback();
     }
 }
