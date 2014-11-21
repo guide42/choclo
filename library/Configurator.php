@@ -34,7 +34,7 @@ class Configurator implements ConfiguratorInterface
     }
 
     public function register($key, callable $configure, $phase=self::PHASE_DEFAULT) {
-        $this->actions->push($phase, $key, $configure, $path);
+        $this->actions->push($phase, $key, $configure, $this->path);
     }
 
     public function rollback() {
