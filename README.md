@@ -6,6 +6,8 @@ Choclo
 
 Choclo is a two-step configuration framework.
 
+This is a PoC. DO NOT USE IT IN PRODUCTION.
+
 Usage
 -----
 
