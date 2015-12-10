@@ -2,35 +2,18 @@
 
 namespace Guide42\Choclo;
 
-use Guide42\Suda\Registry;
-
 class Configurator implements ConfiguratorInterface
 {
     public $path = '/';
-
-    /**
-     * @var \Guide42\Suda\RegistryInterface
-     */
-    private $registry;
 
     /**
      * @var Guide42\Choclo\ActionState
      */
     private $actions;
 
-    public function __construct(Registry $registry=null) {
-        if ($registry === null) {
-            $registry = new Registry();
-        }
-
-        $this->registry = $registry;
+    public function __construct() {
         $this->actions = new ActionState();
-
         $this->rollback();
-    }
-
-    public function getRegistry() {
-        return $this->registry;
     }
 
     public function register($key, callable $configure, $phase=self::PHASE_DEFAULT) {
