@@ -2,7 +2,6 @@
 
 namespace Guide42\Choclo;
 
-use Guide42\Choclo\Exception\ExecutionException;
 use Guide42\Choclo\Exception\ConflictException;
 
 class ActionState
