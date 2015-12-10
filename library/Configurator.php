@@ -2,6 +2,8 @@
 
 namespace Guide42\Choclo;
 
+use Guide42\Choclo\Exception\ExecutionException;
+
 class Configurator implements ConfiguratorInterface
 {
     public $path = '/';
