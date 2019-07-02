@@ -1,45 +1,96 @@
 <?php
 
-namespace Guide42\Choclo;
+namespace choclo;
 
-use Guide42\Choclo\Exception\ExecutionException;
-
-class Configurator implements ConfiguratorInterface
+class Configurator implements \ArrayAccess
 {
-    public $path = '/';
+    private/* \SplPriorityQueue */ $queue;
+    private/* integer */ $order = PHP_INT_MAX;
 
-    /**
-     * @var Guide42\Choclo\ActionState
-     */
-    private $actions;
-
-    public function __construct() {
-        $this->actions = new ActionState();
-        $this->rollback();
+    function __construct(string $path, array $queue=[]) {
+        $this->queue = new \SplPriorityQueue;
+        $this->queue->setExtractFlags(\SplPriorityQueue::EXTR_BOTH);
+        
+        foreach ($queue as $key => $configure) {
+            $this->offsetSet($key, $configure);
+        }
     }
 
-    public function register($key, callable $configure, $phase=self::PHASE_DEFAULT) {
-        $this->actions->push($phase, $key, $configure, $this->path);
+    function offsetExists(string $key): bool {
+        //
     }
 
-    public function rollback() {
-        $this->actions->reset();
+    function offsetGet(string $key): \Generator {
+        //
     }
 
-    public function commit() {
-        foreach ($this->actions->resolve() as $action) {
-            list($key, $fn) = $action;
+    function offsetSet(string $key, callable $configure): void {
+        $path = dirname($key);
+        $key = basename($key);
 
-            try {
-                call_user_func($fn);
-            } catch (\Exception $e) {
-                $msg = 'An error occurred during execution'
-                     . ' of a configuration action';
+        $this->queue->insert(
+            [$key, $configure],
+            [$path, --$this->order]
+        );
+    }
 
-                throw new ExecutionException($msg, null, $e, $key, $fn);
+    function offsetUnset(string $key): void {
+        //
+    }
+
+    function resolve() {
+        $output = $unique = $conflicts = [];
+
+        foreach ($this->queue as $pos => $info) {
+            $path = $info['priority'][0];
+            $key = $info['data'][0];
+            $fn = $info['data'][1];
+
+            if ($key === null) {
+                $output[] = [null, $fn];
+            } else {
+                $unique[$key] = $unique[$key] ?? [];
+                $unique[$key][] = $info;
             }
         }
 
-        $this->rollback();
+        foreach ($unique as $actions) {
+            $base = array_pop($actions);
+            $path = $base['priority'][0];
+
+            $output[] = $base['data'];
+
+            foreach ($actions as $info) {
+                $curr = $info['priority'][0];
+                if ($curr === $path || substr($curr, 0, strlen($path)) !== $path) {
+                    if (array_key_exists($key, $conflicts) === false) {
+                        $conflicts[$key] = array($base);
+                    }
+
+                    $conflicts[$key][] = $info;
+                }
+            }
+        }
+
+        if (count($conflicts) > 0) {
+            $msg = sprintf('%d conflicting configuration actions',
+                count($conflicts)
+            );
+
+            throw new ConflictException($msg, null, null, $conflicts);
+        }
+
+        foreach ($output as $action) {
+            yield $action;
+        }
+    }
+
+    function commit() {
+        foreach ($this->resolve() as [$key, $fn]) {
+            call_user_func($fn);
+        }
+
+        $this->queue = [];
+        $this->order = PHP_INT_MAX;
     }
 }
